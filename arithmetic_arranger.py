@@ -1,9 +1,12 @@
 import re
 
 
+class errorInputArith(Exception):
+    pass
+
+
 def check_problems_format(problem):
-    """this function is made to track errors if
-    not error finded just raise an error with no error message"""
+    """Check errors in a single string, no errors will return None"""
 
     # I dont want to repeat re.search all the time
     # i tried with def re_match but does not work
@@ -19,21 +22,13 @@ def check_problems_format(problem):
     """I resolved to use just ifs because after a return
     the code will exit"""
     if not re_match(re_error["operatorError"]):
-        return "Error: Operator must be '+' or '-'."
+        raise errorInputArith("Error: Operator must be '+' or '-'.")
     if re_match(re_error["nonDigitsError"]):
-        return "Error: Numbers must only contain digits."
+        raise errorInputArith("Error: Numbers must only contain digits.")
     if re_match(re_error["longerDigitsError"][0]) or re_match(
         re_error["longerDigitsError"][1]
     ):
-        return "Error: Numbers cannot be more than four digits."
-
-
-def test_all_error_cases(problems):
-    # checking input errors
-    if len(problems) > 5:
-        return "Error: Too many problems."
-    for problem in problems:
-        return check_problems_format(problem)
+        raise errorInputArith("Error: Numbers cannot be more than four digits.")
 
 
 def main_logic(problems, result):
@@ -80,8 +75,14 @@ def main_logic(problems, result):
 
 def arithmetic_arranger(problems, result=False):
     # check errors
-    if test_all_error_cases(problems):
-        return test_all_error_cases(problems)
+    if len(problems) > 5:
+        return "Error: Too many problems."
+    # loop trying to find an error and return it
+    for problem in problems:
+        try:
+            check_problems_format(problem)
+        except errorInputArith as error:
+            return str(error)
 
     # main soluction
     return main_logic(problems, result)
